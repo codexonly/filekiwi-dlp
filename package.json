@@ -1,0 +1,17 @@
+{
+  "name": "filekiwi-downloader",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Unofficial file.kiwi share downloader (release tooling only; the version lives in the build args, see build.mjs)",
+  "type": "commonjs",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node --check cli.js"
+  },
+  "devDependencies": {
+    "postject": "1.0.0-alpha.6"
+  },
+  "engines": {
+    "node": ">=20.10"
+  }
+}

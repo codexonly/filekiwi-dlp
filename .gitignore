@@ -1,0 +1,16 @@
+# build outputs (regenerate with `node build.mjs --version ... --channel ... --target ...`)
+/dist/
+/build/
+/.cache/
+*.exe
+sea-prep.blob
+node_modules/
+
+# scratch / legacy implementations (see docs/MAINTENANCE.md §2)
+/legacy/
+
+# os noise
+.DS_Store
+Thumbs.db
+desktop.ini
+/.idea/

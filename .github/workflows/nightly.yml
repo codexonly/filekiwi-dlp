@@ -1,0 +1,90 @@
+name: Nightly
+
+# Rolling pre-release, same idea as yt-dlp's nightly channel:
+#   * version = YYYY.MM.DD.HHMMSS (UTC), so every build is distinguishable
+#   * tag     = "nightly" (moved on every run, previous release is pruned)
+#   * marked as pre-release so it never shows up as "latest"
+
+on:
+  schedule:
+    - cron: '0 4 * * *'   # daily 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nightly
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - id: v
+        run: echo "version=$(date -u +%Y.%m.%d.%H%M%S)" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build
+    needs: [version]
+    uses: ./.github/workflows/build.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      channel: nightly
+
+  publish:
+    name: Publish nightly
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: artifact
+          merge-multiple: true
+
+      - name: Prune previous nightly
+        run: gh release delete nightly --yes --cleanup-tag || true
+
+      - name: Tag
+        run: |
+          git tag -f nightly "$GITHUB_SHA"
+          git push -f origin "refs/tags/nightly"
+
+      - name: Publish
+        run: |
+          cat > notes.md <<EOF
+          **filekiwi nightly ${VERSION}**
+
+          Generated from \`${GITHUB_SHA}\` on $(date -u +%Y-%m-%dT%H:%M:%SZ).
+
+          This build tracks the default branch and may be broken at any time.
+          Use a [stable release](https://github.com/${GITHUB_REPOSITORY}/releases/latest) unless you
+          specifically need the latest commits.
+
+          Assets: \`win-x64\`, \`win-arm64\`, \`linux-x64\`, \`linux-arm64\`, \`macos-x64\`, \`macos-arm64\`.
+
+          ### Verify
+
+          ```
+          sha256sum -c SHA2-256SUMS        # Linux
+          shasum -a 256 -c SHA2-256SUMS    # macOS
+          ```
+
+          > Unofficial tool. Only download content you have the right to access.
+          EOF
+          gh release create nightly artifact/* \
+            --title "filekiwi nightly ${VERSION}" \
+            --notes-file notes.md \
+            --prerelease \
+            --verify-tag
