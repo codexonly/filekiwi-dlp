@@ -10,9 +10,10 @@ filekiwi {{VERSION}} — file.kiwi 分享链接下载器（非官方 demo）
 
   win-x64 / win-arm64        filekiwi.exe        （zip）
   linux-x64 / linux-arm64    filekiwi            （tar.gz）
-  macos-x64 / macos-arm64    filekiwi            （tar.gz，已 ad-hoc 签名）
 
-Linux / macOS 第一次运行：
+  不提供 macOS 构建。
+
+Linux 第一次运行：
 
   tar -xzf filekiwi-<版本>-<平台>.tar.gz
   chmod +x filekiwi
@@ -99,8 +100,7 @@ aria2 引擎怎么工作
   * aria2 引擎需要本机已安装 aria2c（程序会自己找，但不会帮你装）。
   * 免费下载窗口：<10GB 48h，10–20GB 12h，>=20GB 6h，过期后无法下载。
   * exe 未签名（node.exe 注入），Windows SmartScreen 可能提示 → “更多信息 → 仍要运行”。
-  * macOS 版本只做 ad-hoc 签名，Gatekeeper 拦截时执行：
-      xattr -d com.apple.quarantine ./filekiwi
+  * 不提供 macOS 构建（SEA 产物需要 ad-hoc 签名，未纳入 CI）。
   * arm64 版本是在 x64 机器上把 blob 注入官方 arm64 Node 生成的，
     未在真实 arm64 硬件上跑过（CI 里也没有 arm 冒烟测试）。
   * 需要能访问 file.kiwi 和 *.r2.cloudflarestorage.com。

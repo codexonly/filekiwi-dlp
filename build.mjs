@@ -27,6 +27,8 @@ const TARGETS = {
   'win-arm64': { os: 'win', nodePlat: 'win', arch: 'arm64' },
   'linux-x64': { os: 'linux', nodePlat: 'linux', arch: 'x64' },
   'linux-arm64': { os: 'linux', nodePlat: 'linux', arch: 'arm64' },
+  // macOS is intentionally NOT built by CI (see docs/MAINTENANCE.md §11).
+  // Kept so a macOS user can still produce a self-built binary locally.
   'macos-x64': { os: 'macos', nodePlat: 'darwin', arch: 'x64' },
   'macos-arm64': { os: 'macos', nodePlat: 'darwin', arch: 'arm64' },
 };

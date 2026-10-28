@@ -15,7 +15,7 @@
 |---|---|
 | 本地解密（零知识，密钥只在 URL `#` 片段） | 不是通用网盘客户端 |
 | 两种下载引擎：内置 / 托管 aria2 | 不支持上传 |
-| 六个平台单文件二进制（Node SEA：win/linux/macos × x64/arm64） | 不支持带密码链接 |
+| 四个平台单文件二进制（Node SEA：win/linux × x64/arm64） | 不支持带密码链接 |
 | 单文件夹、少量文件 | 不是生产级断点续传服务 |
 
 **风险基线**：这是逆向出来的协议，**没有任何公开契约保证**。服务端改一个字段，整个工具就废。第 5 节列了所有假设点。
@@ -342,8 +342,10 @@ node build.mjs --version 2026.10.27 --channel stable --target win-x64 --git-head
 | `win-arm64` | windows-latest | 下载 `node-v<V>-win-arm64` | 交叉注入 |
 | `linux-x64` | ubuntu-latest | 宿主 node | 冒烟测试跑得动 |
 | `linux-arm64` | ubuntu-latest | 下载 `node-v<V>-linux-arm64` | 交叉注入 |
-| `macos-x64` | macos-13 | 宿主 node | 原生 + ad-hoc 签名 |
-| `macos-arm64` | macos-14 | 宿主 node | 原生 + ad-hoc 签名 |
+
+> **macOS 故意不构建。** `build.mjs` 里仍保留 `macos-*` 目标（含 codesign 流程），
+> 在 macOS 上本地执行 `--target macos-arm64` 可以产出自用包；但 CI 不出、
+> release 不发。要恢复的话把两个 target 加回矩阵即可，注意 macOS 必须原生构建 + ad-hoc 签名。
 
 > SEA blob 与架构无关的前提：`useSnapshot` / `useCodeCache` 都是 `false`（见 `build.mjs`）。
 > 如果哪天打开了 snapshot，跨架构注入就会失效。
@@ -379,9 +381,9 @@ git tag 2026.10.27 && git push origin 2026.10.27   # 方式一：推 tag
 - CI 里 Node 版本是**固定**的（`20.18.0`）：所有产物都是"复制该版本 Node 再注入"，改版本等于换全部产物。
 - `postject` 版本也固定（`1.0.0-alpha.6`），`build.mjs` 启动时与 `package.json` 核对。
 - SEA **不能跨 OS**（Windows 主机出不了 Linux 产物），但**可以跨架构**（x64 机器能出 arm64）。
-- 注入会破坏原有签名：Windows 上 `postject` 会警告 `signature seems corrupted`（预期）；
-  macOS 上则是先 `codesign --remove-signature`、注入后 `codesign --sign -` 做 ad-hoc 签名。
-- macOS 产物未做公证（notarization），首次运行可能需要 `xattr -d com.apple.quarantine`。
+- 注入会破坏原有签名：Windows 上 `postject` 会警告 `signature seems corrupted`（预期）。
+- macOS 目标保留在 `build.mjs` 里但不进 CI：它需要 `codesign --remove-signature` → 注入 →
+  `codesign --sign -`，且未做公证（notarization），首次运行要 `xattr -d com.apple.quarantine`。
 
 ---
 

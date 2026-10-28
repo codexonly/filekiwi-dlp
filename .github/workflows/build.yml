@@ -5,9 +5,8 @@ name: Build
 # Matrix notes
 #   * The SEA blob is arch independent, so arm64 artifacts are produced by
 #     injecting it into the official arm64 Node binary on an x64 runner
-#     (build.mjs --target). No arm runners needed for win/linux.
-#   * macOS cannot cross-compile usefully: the binary must be ad-hoc signed
-#     on macOS, so x64/arm64 use native runners (macos-13 / macos-14).
+#     (build.mjs --target). No arm runners needed.
+#   * macOS is intentionally not built here (see docs/MAINTENANCE.md §11).
 #   * smoke test only runs where the target arch matches the runner.
 
 on:
@@ -38,8 +37,6 @@ jobs:
           - { target: win-arm64,   runner: windows-latest }
           - { target: linux-x64,   runner: ubuntu-latest }
           - { target: linux-arm64, runner: ubuntu-latest }
-          - { target: macos-x64,   runner: macos-13 }
-          - { target: macos-arm64, runner: macos-14 }
     steps:
       - uses: actions/checkout@v4
 
@@ -66,10 +63,6 @@ jobs:
       - name: Smoke test (linux x64)
         if: matrix.target == 'linux-x64'
         run: ./dist/filekiwi-${{ inputs.version }}-linux-x64/filekiwi --version
-
-      - name: Smoke test (macos)
-        if: startsWith(matrix.target, 'macos-')
-        run: ./dist/filekiwi-${{ inputs.version }}-${{ matrix.target }}/filekiwi --version
 
       - uses: actions/upload-artifact@v4
         with:

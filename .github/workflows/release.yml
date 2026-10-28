@@ -117,37 +117,27 @@ jobs:
           | `filekiwi-*-win-arm64.zip` | Windows 11 ARM64 |
           | `filekiwi-*-linux-x64.tar.gz` | Linux x86_64 (glibc) |
           | `filekiwi-*-linux-arm64.tar.gz` | Linux aarch64 (glibc) |
-          | `filekiwi-*-macos-x64.tar.gz` | macOS Intel |
-          | `filekiwi-*-macos-arm64.tar.gz` | macOS Apple Silicon |
 
           Every archive contains the binary (`filekiwi.exe` / `filekiwi`), the
           unminified `cli.js`, `README.txt` and `build-info.txt`.
 
           ```bash
-          # Linux / macOS
+          # Linux
           tar -xzf filekiwi-*-linux-x64.tar.gz
           ./filekiwi --version
-          ```
-
-          macOS binaries are **ad-hoc signed only**; if Gatekeeper blocks them:
-
-          ```bash
-          xattr -d com.apple.quarantine ./filekiwi
           ```
 
           ### Verify
 
           ```
           sha256sum -c SHA2-256SUMS          # Linux
-          shasum -a 256 -c SHA2-256SUMS      # macOS
           certutil -hashfile <zip> SHA256    # Windows
           ```
 
           > Unofficial tool. Only download content you have the right to access.
 
-          > The binaries are unsigned on Windows/Linux and ad-hoc signed on macOS
-          > (they are patched Node runtimes), so Windows SmartScreen will warn:
-          > *More info → Run anyway*.
+          > The binaries are unsigned (they are patched Node runtimes), so
+          > Windows SmartScreen will warn: *More info → Run anyway*.
           EOF
           } > notes.md
 
